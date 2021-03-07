@@ -74,12 +74,7 @@ class Modalus {
     //   this.appendTo.appendChild(Modal._overlay);
     // }
 
-    this.element =
-      typeof element === 'string' ? document.querySelector(element) : element
-
-    if (!isDomElement(this.element)) {
-      throw new Error('Element shold be is ELEMENT_NODE, check your parameter')
-    }
+    this.element = Modalus.getElement(element)
 
     this.isInit = false
     this.init()
@@ -94,10 +89,22 @@ class Modalus {
     return LOOKUP[index]
   }
 
+  static getElement(element) {
+    const el =
+      typeof element === 'string' ? document.querySelector(element) : element
+
+    if (!isDomElement(el)) {
+      throw new Error('Element shold be is ELEMENT_NODE, check your parameter')
+    }
+
+    return el
+  }
+
   static init(element, options = {}) {
-    let instance = Modalus.getInstance(element)
+    const el = Modalus.getElement(element)
+    let instance = Modalus.getInstance(el)
     if (!instance) {
-      instance = new Modalus(element, options)
+      instance = new Modalus(el, options)
       if (
         instance.settings.hashTracking &&
         instance.hashID === window.location.hash.substr(1)
