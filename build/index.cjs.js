@@ -1,5 +1,5 @@
 /**
- * Modalus  1.0.0
+ * Modalus  1.0.1
  * GitHub template for starting new projects
  * https://github.com/Fapalz/@fapalz/modal#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 7, 2021
+ * Released on: May 29, 2021
  */
 
 'use strict';
@@ -101,17 +101,22 @@ function setState(instance, state) {
 
 var Modalus = /*#__PURE__*/function () {
   function Modalus(element, options) {
-    this.settings = _extends({}, DEFAULTS, options);
-    this.index = LOOKUP.push(this) - 1;
-    this.state = STATES.CLOSED; // if (this.settings.appendTo !== null && this.settings.appendTo.length) {
+    // if (this.settings.appendTo !== null && this.settings.appendTo.length) {
     //   this.appendTo = this.settings.appendTo;
     // }
     // if(!Modal._overlay) {
     //   Modal._overlay = $('<div>').addClass(namespacify('overlay') + ' ' + namespacify('is', STATES.CLOSED)).hide();
     //   this.appendTo.appendChild(Modal._overlay);
     // }
+    try {
+      this.element = Modalus.getElement(element);
+    } catch (err) {
+      return;
+    }
 
-    this.element = Modalus.getElement(element);
+    this.settings = _extends({}, DEFAULTS, options);
+    this.state = STATES.CLOSED;
+    this.index = LOOKUP.push(this) - 1;
     this.isInit = false;
     this.init();
   }
@@ -138,7 +143,14 @@ var Modalus = /*#__PURE__*/function () {
       options = {};
     }
 
-    var el = Modalus.getElement(element);
+    var el;
+
+    try {
+      el = Modalus.getElement(element);
+    } catch (err) {
+      return null;
+    }
+
     var instance = Modalus.getInstance(el);
 
     if (!instance) {

@@ -61,10 +61,6 @@ function setState(instance, state) {
 
 class Modalus {
   constructor(element, options) {
-    this.settings = { ...DEFAULTS, ...options }
-    this.index = LOOKUP.push(this) - 1
-    this.state = STATES.CLOSED
-
     // if (this.settings.appendTo !== null && this.settings.appendTo.length) {
     //   this.appendTo = this.settings.appendTo;
     // }
@@ -74,8 +70,16 @@ class Modalus {
     //   this.appendTo.appendChild(Modal._overlay);
     // }
 
-    this.element = Modalus.getElement(element)
+    try {
+      this.element = Modalus.getElement(element)
+    } catch (err) {
+      return
+    }
 
+    this.settings = { ...DEFAULTS, ...options }
+
+    this.state = STATES.CLOSED
+    this.index = LOOKUP.push(this) - 1
     this.isInit = false
     this.init()
   }
@@ -101,7 +105,13 @@ class Modalus {
   }
 
   static init(element, options = {}) {
-    const el = Modalus.getElement(element)
+    let el
+    try {
+      el = Modalus.getElement(element)
+    } catch (err) {
+      return null
+    }
+
     let instance = Modalus.getInstance(el)
     if (!instance) {
       instance = new Modalus(el, options)
