@@ -245,10 +245,6 @@ class Modalus {
     ) {
       this.close(e)
     }
-
-    // if (e.target.hasAttribute(this.settings.closeTrigger)) {
-    //   this.close(e)
-    // }
   }
 
   onMouseDown(e) {
@@ -310,6 +306,16 @@ class Modalus {
       OPENS.push(this)
       disableBodyScroll(this.element, {
         reserveScrollBarGap: true,
+        // eslint-disable-next-line consistent-return
+        allowTouchMove: (el) => {
+          while (el && el !== document.body) {
+            if (el.getAttribute('body-scroll-lock-ignore') !== null) {
+              return true
+            }
+            // eslint-disable-next-line no-param-reassign
+            el = el.parentElement
+          }
+        },
       })
       this.settings.afterOpen(this, OPENS)
     })

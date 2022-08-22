@@ -1,13 +1,13 @@
 /**
- * Modalus  1.0.2
+ * Modalus  1.0.3
  * GitHub template for starting new projects
  * https://github.com/Fapalz/@fapalz/modal#readme
  *
- * Copyright 2020-2021 Gladikov Kirill - Fapalz <blacesmot@gmail.com>
+ * Copyright 2020-2022 Gladikov Kirill - Fapalz <blacesmot@gmail.com>
  *
  * Released under the MIT License
  *
- * Released on: May 29, 2021
+ * Released on: August 22, 2022
  */
 
 function _extends() {
@@ -663,10 +663,7 @@ var Modalus = /*#__PURE__*/function () {
   _proto.onClick = function onClick(e) {
     if (this.settings.closeOnButton && e.target.closest("[" + this.settings.closeTrigger + "]")) {
       this.close(e);
-    } // if (e.target.hasAttribute(this.settings.closeTrigger)) {
-    //   this.close(e)
-    // }
-
+    }
   };
 
   _proto.onMouseDown = function onMouseDown(e) {
@@ -715,7 +712,18 @@ var Modalus = /*#__PURE__*/function () {
       setFocusToFirstNode(_this2.element);
       OPENS.push(_this2);
       disableBodyScroll(_this2.element, {
-        reserveScrollBarGap: true
+        reserveScrollBarGap: true,
+        // eslint-disable-next-line consistent-return
+        allowTouchMove: function allowTouchMove(el) {
+          while (el && el !== document.body) {
+            if (el.getAttribute('body-scroll-lock-ignore') !== null) {
+              return true;
+            } // eslint-disable-next-line no-param-reassign
+
+
+            el = el.parentElement;
+          }
+        }
       });
 
       _this2.settings.afterOpen(_this2, OPENS);
