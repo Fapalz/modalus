@@ -14,6 +14,7 @@ export const DEFAULTS = {
   appendTo: null,
   catchFocus: true,
   closeTrigger: `data-${NAMESPACE}-close`,
+  fixedSelector: `[data-${NAMESPACE}-fixed]`,
   beforeOpen: () => {},
   afterOpen: () => {},
   beforeClose: () => {},

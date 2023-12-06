@@ -1,16 +1,15 @@
 /**
- * Modalus  1.0.1
+ * Modalus  1.0.4
  * GitHub template for starting new projects
  * https://github.com/Fapalz/@fapalz/modal#readme
  *
- * Copyright 2020-2021 Gladikov Kirill - Fapalz <blacesmot@gmail.com>
+ * Copyright 2020-2023 Gladikov Kirill - Fapalz <blacesmot@gmail.com>
  *
  * Released under the MIT License
  *
- * Released on: May 29, 2021
+ * Released on: December 6, 2023
  */
 
-import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { nextFrame, whenTransitionEnds } from '@fapalz/utils/src/utils/transition';
 import { setFocusToFirstNode, retainFocus } from '@fapalz/utils/src/utils/focus-catcher';
 import { isDomElement } from '@fapalz/utils/src/utils/index';
@@ -45,6 +44,7 @@ var DEFAULTS = {
   appendTo: null,
   catchFocus: true,
   closeTrigger: "data-" + NAMESPACE + "-close",
+  fixedSelector: "[data-" + NAMESPACE + "-fixed]",
   beforeOpen: function beforeOpen() {},
   afterOpen: function afterOpen() {},
   beforeClose: function beforeClose() {},
@@ -99,13 +99,13 @@ function setState(instance, state) {
 
 var Modalus = /*#__PURE__*/function () {
   function Modalus(element, options) {
-    // if (this.settings.appendTo !== null && this.settings.appendTo.length) {
-    //   this.appendTo = this.settings.appendTo;
-    // }
-    // if(!Modal._overlay) {
-    //   Modal._overlay = $('<div>').addClass(namespacify('overlay') + ' ' + namespacify('is', STATES.CLOSED)).hide();
-    //   this.appendTo.appendChild(Modal._overlay);
-    // }
+    /* if (this.settings.appendTo !== null && this.settings.appendTo.length) {
+      this.appendTo = this.settings.appendTo;
+    }
+     if(!Modal._overlay) {
+      Modal._overlay = $('<div>').addClass(namespacify('overlay') + ' ' + namespacify('is', STATES.CLOSED)).hide();
+      this.appendTo.appendChild(Modal._overlay);
+    } */
     try {
       this.element = Modalus.getElement(element);
     } catch (err) {
@@ -175,9 +175,9 @@ var Modalus = /*#__PURE__*/function () {
     var current = OPENS[OPENS.length - 1];
 
     if (!id) {
-      // if (OPENS.length > 0 && current && current.settings.hashTracking) {
-      //   current.setHash();
-      // }
+      /* if (OPENS.length > 0 && current && current.settings.hashTracking) {
+        current.setHash();
+      } */
       // Check if we have currently opened modal and animation was completed
       if (current && current.settings.hashTracking) {
         current.close();
@@ -249,6 +249,7 @@ var Modalus = /*#__PURE__*/function () {
     ['onClick', 'onMouseDown', 'onMouseUp'].forEach(function (method) {
       _this[method] = _this[method].bind(_this);
     });
+    this.isOpened = false;
     this.overlayChecker = false;
     this.isInit = true;
   };
@@ -277,10 +278,7 @@ var Modalus = /*#__PURE__*/function () {
   _proto.onClick = function onClick(e) {
     if (this.settings.closeOnButton && e.target.closest("[" + this.settings.closeTrigger + "]")) {
       this.close(e);
-    } // if (e.target.hasAttribute(this.settings.closeTrigger)) {
-    //   this.close(e)
-    // }
-
+    }
   };
 
   _proto.onMouseDown = function onMouseDown(e) {
@@ -328,9 +326,10 @@ var Modalus = /*#__PURE__*/function () {
 
       setFocusToFirstNode(_this2.element);
       OPENS.push(_this2);
-      disableBodyScroll(_this2.element, {
-        reserveScrollBarGap: true
-      });
+
+      _this2.bodyScrollControl();
+
+      _this2.isOpened = true;
 
       _this2.settings.afterOpen(_this2, OPENS);
     });
@@ -358,16 +357,49 @@ var Modalus = /*#__PURE__*/function () {
 
       _this3.element.classList.remove('is-enter');
 
-      enableBodyScroll(_this3.element, {
-        reserveScrollBarGap: true
-      });
+      _this3.bodyScrollControl();
+
+      _this3.isOpened = false;
 
       _this3.settings.afterClose(_this3, OPENS);
     });
   };
 
+  _proto.bodyScrollControl = function bodyScrollControl() {
+    var fixedSelectorsElements = document.querySelectorAll(this.settings.fixedSelector);
+    var fixedSelectors = Array.from(fixedSelectorsElements);
+    var html = document.documentElement;
+    var body = document.querySelector('body');
+
+    if (this.isOpened === true) {
+      html.classList.remove(NAMESPACE + "-opened");
+      body.style.paddingRight = '';
+      fixedSelectors.forEach(function (elements) {
+        // eslint-disable-next-line no-param-reassign
+        elements.style.paddingRight = '';
+      });
+      window.scrollTo(0, this.scrollPosition);
+      html.style.top = '';
+      return;
+    }
+
+    this.scrollPosition = window.scrollY;
+    var paddingSize = window.innerWidth - html.clientWidth;
+    html.style.top = -this.scrollPosition + "px";
+
+    if (paddingSize) {
+      body.style.paddingRight = paddingSize + "px";
+      fixedSelectors.forEach(function (el) {
+        // eslint-disable-next-line no-param-reassign
+        el.style.paddingRight = parseInt(getComputedStyle(el).paddingRight, 10) + paddingSize + "px";
+      });
+    }
+
+    html.classList.add(NAMESPACE + "-opened");
+  };
+
   _proto.setHash = function setHash() {
-    this.scrollPosition = window.pageYOffset;
+    this.scrollPosition = window.scrollY;
     window.location.hash = this.hashID;
   };
 

@@ -1,4 +1,3 @@
-import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock'
 import {
   whenTransitionEnds,
   nextFrame,
@@ -61,14 +60,14 @@ function setState(instance, state) {
 
 class Modalus {
   constructor(element, options) {
-    // if (this.settings.appendTo !== null && this.settings.appendTo.length) {
-    //   this.appendTo = this.settings.appendTo;
-    // }
+    /* if (this.settings.appendTo !== null && this.settings.appendTo.length) {
+      this.appendTo = this.settings.appendTo;
+    }
 
-    // if(!Modal._overlay) {
-    //   Modal._overlay = $('<div>').addClass(namespacify('overlay') + ' ' + namespacify('is', STATES.CLOSED)).hide();
-    //   this.appendTo.appendChild(Modal._overlay);
-    // }
+    if(!Modal._overlay) {
+      Modal._overlay = $('<div>').addClass(namespacify('overlay') + ' ' + namespacify('is', STATES.CLOSED)).hide();
+      this.appendTo.appendChild(Modal._overlay);
+    } */
 
     try {
       this.element = Modalus.getElement(element)
@@ -138,9 +137,9 @@ class Modalus {
     const current = OPENS[OPENS.length - 1]
 
     if (!id) {
-      // if (OPENS.length > 0 && current && current.settings.hashTracking) {
-      //   current.setHash();
-      // }
+      /* if (OPENS.length > 0 && current && current.settings.hashTracking) {
+        current.setHash();
+      } */
 
       // Check if we have currently opened modal and animation was completed
       if (current && current.settings.hashTracking) {
@@ -212,6 +211,7 @@ class Modalus {
       this[method] = this[method].bind(this)
     })
 
+    this.isOpened = false
     this.overlayChecker = false
     this.isInit = true
   }
@@ -304,19 +304,9 @@ class Modalus {
       this.element.classList.add('is-enter-active')
       setFocusToFirstNode(this.element)
       OPENS.push(this)
-      disableBodyScroll(this.element, {
-        reserveScrollBarGap: true,
-        // eslint-disable-next-line consistent-return
-        allowTouchMove: (el) => {
-          while (el && el !== document.body) {
-            if (el.getAttribute('body-scroll-lock-ignore') !== null) {
-              return true
-            }
-            // eslint-disable-next-line no-param-reassign
-            el = el.parentElement
-          }
-        },
-      })
+
+      this.bodyScrollControl()
+      this.isOpened = true
       this.settings.afterOpen(this, OPENS)
     })
   }
@@ -348,15 +338,52 @@ class Modalus {
       this.element.setAttribute('aria-hidden', 'true')
       setState(this, STATES.CLOSED)
       this.element.classList.remove('is-enter')
-      enableBodyScroll(this.element, {
-        reserveScrollBarGap: true,
-      })
+
+      this.bodyScrollControl()
+      this.isOpened = false
       this.settings.afterClose(this, OPENS)
     })
   }
 
+  bodyScrollControl() {
+    const fixedSelectorsElements = document.querySelectorAll(
+      this.settings.fixedSelector
+    )
+    const fixedSelectors = Array.from(fixedSelectorsElements)
+    const html = document.documentElement
+    const body = document.querySelector('body')
+
+    if (this.isOpened === true) {
+      html.classList.remove(`${NAMESPACE}-opened`)
+      body.style.paddingRight = ''
+      fixedSelectors.forEach((elements) => {
+        // eslint-disable-next-line no-param-reassign
+        elements.style.paddingRight = ''
+      })
+      window.scrollTo(0, this.scrollPosition)
+      html.style.top = ''
+      return
+    }
+
+    this.scrollPosition = window.scrollY
+    const paddingSize = window.innerWidth - html.clientWidth
+    html.style.top = `${-this.scrollPosition}px`
+
+    if (paddingSize) {
+      body.style.paddingRight = `${paddingSize}px`
+      fixedSelectors.forEach((el) => {
+        // eslint-disable-next-line no-param-reassign
+        el.style.paddingRight = `${
+          parseInt(getComputedStyle(el).paddingRight, 10) + paddingSize
+        }px`
+      })
+    }
+
+    html.classList.add(`${NAMESPACE}-opened`)
+  }
+
   setHash() {
-    this.scrollPosition = window.pageYOffset
+    this.scrollPosition = window.scrollY
     window.location.hash = this.hashID
   }
 

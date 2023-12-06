@@ -1,3 +1,10 @@
+.modalus-opened {
+  position: fixed;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+}
+
 .navigation-drawer {
   $self: &;
 
@@ -45,6 +52,10 @@
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
+    scroll-behavior: smooth;
+    backface-visibility: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   &__close {

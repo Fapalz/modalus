@@ -1,14 +1,21 @@
 /**
- * Library 1.0.3
+ * Library 1.0.4
  * GitHub template for starting new projects
  * https://github.com/Fapalz/@fapalz/modal#readme
  *
- * Copyright 2020-2022 Gladikov Kirill - Fapalz <blacesmot@gmail.com>
+ * Copyright 2020-2023 Gladikov Kirill - Fapalz <blacesmot@gmail.com>
  *
  * Released under the MIT License
  *
- * Released on: August 22, 2022
+ * Released on: December 6, 2023
  */
+
+.modalus-opened {
+  position: fixed;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+}
 
 .navigation-drawer {
   display: none;
@@ -53,6 +60,10 @@
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  scroll-behavior: smooth;
+  backface-visibility: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .navigation-drawer__close {
   position: absolute;
